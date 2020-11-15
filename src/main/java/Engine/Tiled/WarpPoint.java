@@ -14,6 +14,8 @@ import Engine.Utils.ObjectCaster;
 import Engine.Utils.Vector2D;
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -24,9 +26,9 @@ public class WarpPoint extends BaseEntity {
     private Vector2D positionToWarp;
     private int tileWidth;
     private int tileHeight;
-    private PhysicalMap map;
+    private String map;
     
-    public WarpPoint(Vector2D position, Vector2D positionToWarp, int tileWidth, int tileHeight, PhysicalMap referenceMap) {
+    public WarpPoint(Vector2D position, Vector2D positionToWarp, int tileWidth, int tileHeight, String referenceMap) {
         this.position = position.Multiply(32);
         this.tileWidth = tileWidth;
         this.tileHeight = tileHeight;
@@ -36,13 +38,19 @@ public class WarpPoint extends BaseEntity {
     
     /* NEED TO BE ADAPTED */
     public PhysicalMap warp(PlayerEntity player) {
-        //PhysicalMap previousMap = LuigiMansion.getInstance().currentlyLoadedMap;
+        PhysicalMap previousMap = MapManager.getInstance().getCurrentlyLoadMap();
         if(map != null) {
             CollisionRegistery.getInstance().clearList();
-            if(!map.loaded) {
-                map.load();
+            try {
+                if(!MapManager.getInstance().isMapLoaded(map)) {
+                    MapManager.getInstance().loadMap(map);
+                }
             }
-            //LuigiMansion.getInstance().currentlyLoadedMap = map;
+            catch (Exception ex) {
+                System.out.print(ex.toString());
+                return null;
+            }
+            MapManager.getInstance().setLoadedMap(map);
         }       
         player.setPosition(positionToWarp);
         return null;
